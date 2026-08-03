@@ -47,8 +47,11 @@ def create_item(
     db.commit()
     db.refresh(new_item)
 
-    # Trigger AI Matching Pipeline asynchronously/in-line
-    run_matching_pipeline_for_item(new_item, db)
+    # Trigger AI Matching Pipeline
+    try:
+        run_matching_pipeline_for_item(db, new_item)
+    except Exception as e:
+        print(f"[AI MATCHING ERROR]: {e}")
 
     return new_item
 
