@@ -1,7 +1,22 @@
-from app.routes.auth import router as auth_router
-from app.routes.items import router as items_router
-from app.routes.matches import router as matches_router
-from app.routes.admin import router as admin_router
-from app.routes.demo import router as demo_router
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
+from app.schemas.item import ItemResponse
 
-__all__ = ["auth_router", "items_router", "matches_router", "admin_router", "demo_router"]
+class MatchResponse(BaseModel):
+    id: int
+    lost_item_id: int
+    found_item_id: int
+    text_similarity: float
+    image_similarity: float
+    confidence_score: float
+    status: str
+    created_at: datetime
+    lost_item: Optional[ItemResponse] = None
+    found_item: Optional[ItemResponse] = None
+
+    class Config:
+        from_attributes = True
+
+class MatchStatusUpdate(BaseModel):
+    status: str

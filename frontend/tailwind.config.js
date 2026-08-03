@@ -1,7 +1,22 @@
-from app.routes.auth import router as auth_router
-from app.routes.items import router as items_router
-from app.routes.matches import router as matches_router
-from app.routes.admin import router as admin_router
-from app.routes.demo import router as demo_router
-
-__all__ = ["auth_router", "items_router", "matches_router", "admin_router", "demo_router"]
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          50: '#f0f9ff',
+          100: '#e0f2fe',
+          500: '#0284c7',
+          600: '#0369a1',
+          700: '#075985',
+          900: '#0c4a6e',
+        }
+      }
+    },
+  },
+  plugins: [],
+}

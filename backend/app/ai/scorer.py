@@ -20,7 +20,6 @@ def calculate_location_similarity(loc1: str, loc2: str) -> float:
     if l1 == l2:
         return 1.0
     
-    # Common campus locations / keywords match
     words1 = set(l1.split())
     words2 = set(l2.split())
     intersection = words1.intersection(words2)
@@ -45,43 +44,30 @@ def calculate_date_similarity(date_str1: str, date_str2: str) -> float:
         else:
             return 0.10
     except Exception:
-        return 0.5  # Neutral fallback if date parsing fails
+        return 0.5
 
 def compute_combined_match_score(lost_item, found_item) -> dict:
-    """
-    Computes text, image, category, location, and date similarities
-    and returns a combined confidence score between 0 and 100.
-    """
-    # 1. Text Similarity (name + description + location)
     text1 = f"{lost_item.name}. {lost_item.description}. Location: {lost_item.location}"
     text2 = f"{found_item.name}. {found_item.description}. Location: {found_item.location}"
     text_sim = compute_text_similarity(text1, text2)
 
-    # 2. Image Similarity
     has_image = bool(lost_item.image_path and found_item.image_path)
     if has_image:
         image_sim = compute_image_similarity(lost_item.image_path, found_item.image_path)
     else:
         image_sim = 0.0
 
-    # 3. Category Similarity
     cat_sim = calculate_category_similarity(lost_item.category, found_item.category)
-
-    # 4. Location Similarity
     loc_sim = calculate_location_similarity(lost_item.location, found_item.location)
-
-    # 5. Date Proximity Similarity
     date_sim = calculate_date_similarity(lost_item.date, found_item.date)
 
-    # Dynamic Weight Adjustment if images are missing
     if has_image and image_sim > 0.0:
-        w_text = settings.WEIGHT_TEXT        # 0.40
-        w_img = settings.WEIGHT_IMAGE        # 0.30
-        w_cat = settings.WEIGHT_CATEGORY     # 0.15
-        w_loc = settings.WEIGHT_LOCATION     # 0.10
-        w_date = settings.WEIGHT_DATE        # 0.05
+        w_text = settings.WEIGHT_TEXT
+        w_img = settings.WEIGHT_IMAGE
+        w_cat = settings.WEIGHT_CATEGORY
+        w_loc = settings.WEIGHT_LOCATION
+        w_date = settings.WEIGHT_DATE
     else:
-        # Scale remaining weights proportionally when image is not present
         w_text = 0.55
         w_img = 0.0
         w_cat = 0.20
@@ -106,3 +92,7 @@ def compute_combined_match_score(lost_item, found_item) -> dict:
         "location_similarity": round(loc_sim, 4),
         "date_similarity": round(date_sim, 4)
     }
+
+def calculate_confidence_score(lost_item, found_item):
+    res = compute_combined_match_score(lost_item, found_item)
+    return res["text_similarity"], res["image_similarity"], res["confidence_score"]

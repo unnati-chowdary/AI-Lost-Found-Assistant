@@ -1,7 +1,28 @@
-from app.routes.auth import router as auth_router
-from app.routes.items import router as items_router
-from app.routes.matches import router as matches_router
-from app.routes.admin import router as admin_router
-from app.routes.demo import router as demo_router
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+from datetime import datetime
 
-__all__ = ["auth_router", "items_router", "matches_router", "admin_router", "demo_router"]
+class UserRegister(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+    role: Optional[str] = "USER"
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    role: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponse
