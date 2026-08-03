@@ -1,7 +1,58 @@
-from app.routes.auth import router as auth_router
-from app.routes.items import router as items_router
-from app.routes.matches import router as matches_router
-from app.routes.admin import router as admin_router
-from app.routes.demo import router as demo_router
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authAPI } from '../services/api';
 
-__all__ = ["auth_router", "items_router", "matches_router", "admin_router", "demo_router"]
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMe = async () => {
+      if (token) {
+        try {
+          const res = await authAPI.getMe();
+          setUser(res.data);
+        } catch (err) {
+          console.error("Session expired or invalid token:", err);
+          logout();
+        }
+      }
+      setLoading(false);
+    };
+    fetchMe();
+  }, [token]);
+
+  const login = async (email, password) => {
+    const res = await authAPI.login({ email, password });
+    const { access_token, user: userData } = res.data;
+    localStorage.setItem('token', access_token);
+    setToken(access_token);
+    setUser(userData);
+    return userData;
+  };
+
+  const register = async (name, email, password, role = "USER") => {
+    const res = await authAPI.register({ name, email, password, role });
+    const { access_token, user: userData } = res.data;
+    localStorage.setItem('token', access_token);
+    setToken(access_token);
+    setUser(userData);
+    return userData;
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setToken('');
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);

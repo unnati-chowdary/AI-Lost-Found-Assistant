@@ -1,7 +1,10 @@
-from app.routes.auth import router as auth_router
-from app.routes.items import router as items_router
-from app.routes.matches import router as matches_router
-from app.routes.admin import router as admin_router
-from app.routes.demo import router as demo_router
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
+import './index.css'
 
-__all__ = ["auth_router", "items_router", "matches_router", "admin_router", "demo_router"]
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)

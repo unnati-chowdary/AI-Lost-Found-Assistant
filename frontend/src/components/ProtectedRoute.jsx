@@ -1,7 +1,27 @@
-from app.routes.auth import router as auth_router
-from app.routes.items import router as items_router
-from app.routes.matches import router as matches_router
-from app.routes.admin import router as admin_router
-from app.routes.demo import router as demo_router
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-__all__ = ["auth_router", "items_router", "matches_router", "admin_router", "demo_router"]
+const ProtectedRoute = ({ children, requireAdmin = false }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (requireAdmin && user.role !== 'ADMIN') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+export default ProtectedRoute;
